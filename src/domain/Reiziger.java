@@ -9,6 +9,10 @@ public class Reiziger {
     private String achternaam;
     private LocalDate gbDatum;
 
+    private Adres adres;
+
+
+
     public Reiziger(int id, String voorletter, String tussenvoegsel, String achternaam, LocalDate gbDatum) {
         this.id = id;
         this.voorletter = voorletter;
@@ -18,6 +22,13 @@ public class Reiziger {
     }
     public int getId() {
         return id;
+    }
+    public Adres getAdres() {
+        return adres;
+    }
+
+    public void setAdres(Adres adres) {
+        this.adres = adres;
     }
 
     public void setId(int id) {

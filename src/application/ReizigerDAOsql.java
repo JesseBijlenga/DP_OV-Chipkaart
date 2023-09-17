@@ -29,6 +29,9 @@ public class ReizigerDAOsql implements ReizigerDAO {
             ps.setDate(5, Date.valueOf(reiziger.getGbDatum()));
             ps.execute();
             ps.close();
+            if(this.AdresDAO != null) {
+                this.AdresDAO.save(reiziger.getAdres()); //Dit staat in de slides maar lijkt nog iets bij fout te gaan.
+            }
             return true;
         }catch (SQLException ex){
             System.out.println(ex.getMessage());
