@@ -1,5 +1,8 @@
+import application.AdresDAOsql;
 import application.ReizigerDAOsql;
+import data.AdresDAO;
 import data.ReizigerDAO;
+import domain.Adres;
 import domain.Reiziger;
 
 import java.sql.*;
@@ -13,7 +16,9 @@ public class Main {
 
         Connection conn = DriverManager.getConnection(dbUrl, user, pass);
         ReizigerDAOsql doa = new ReizigerDAOsql(conn);
-        testReizigerDAO(doa);
+        AdresDAOsql doa2 = new AdresDAOsql(conn);
+        testAdresDAO(doa2);
+        //testReizigerDAO(doa);
 }
     /**
      * P2. Reiziger DAO: persistentie van een klasse
@@ -40,12 +45,14 @@ public class Main {
         rdao.save(sietske);
         reizigers = rdao.findAll();
         System.out.println(reizigers.size() + " reizigers\n");
-
+        System.out.println(rdao.findById(77));
         // Voeg aanvullende tests van de ontbrekende CRUD-operaties in.
 
         // Test het bijwerken van een reiziger
         System.out.println("[Test] ReizigerDAO.update() - Update reiziger:");
-        sietske.setVoorletter("S.C");
+
+        sietske.setVoorletter("S C");
+
         rdao.update(sietske);
         Reiziger gewijzigdeSietske = rdao.findById(sietske.getId());
         System.out.println("[Test] Gewijzigde reiziger: " + gewijzigdeSietske);
@@ -55,5 +62,17 @@ public class Main {
         rdao.delete(sietske);
         Reiziger verwijderdeSietske = rdao.findById(sietske.getId());
         System.out.println("[Test] Verwijderde reiziger (null als verwijderd): " + verwijderdeSietske);
+    }
+    private static void testAdresDAO(AdresDAO adao) throws SQLException {
+        System.out.println("\n---------- Test AdresDAO -------------");
+
+        // Haal alle adressen op uit de database
+        List<Adres> adressen = adao.findAll();
+        System.out.println("[Test] AdresDAO.findAll() geeft de volgende adressen:");
+        for (Adres a : adressen) {
+            System.out.println(a);
+        }
+        System.out.println();
+
     }
 }

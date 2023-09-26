@@ -1,6 +1,7 @@
 package application;
 
 import data.AdresDAO;
+import data.ReizigerDAO;
 import domain.Adres;
 import domain.Reiziger;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class AdresDAOsql implements AdresDAO {
     private final Connection conn;
-
+    private ReizigerDAO rdao;
     public AdresDAOsql(Connection conn) {
         this.conn = conn;
     }
@@ -46,7 +47,7 @@ public class AdresDAOsql implements AdresDAO {
             ps.setString(2, adres.getHuisnummer());
             ps.setString(3, adres.getStraat());
             ps.setString(4, adres.getWoonplaats());
-            ps.setInt(5, adres.getReiziger_id());
+            ps.setInt(5, adres.getReiziger().getId());
             ps.setInt(6, adres.getAdres_id());
 
             ps.execute();
@@ -76,47 +77,23 @@ public class AdresDAOsql implements AdresDAO {
         return false;
     }
 
-    @Override
-    public Adres findById(int id) throws SQLException {
-        try{
-            Statement statement = conn.createStatement();
-            ResultSet res = statement.executeQuery(String.format("select * from adres where adres_id=%d", id));
-            if(res.next()){
-                int adresId = res.getInt("adres_id");
-                String postcode = res.getString("postcode");
-                String huisnummer = res.getString("huisnummer");
-                String straat = res.getString("straat");
-                String woonplaats = res.getString("woonplaats");
-                int reisId = res.getInt("reiziger_id");
-
-                res.close();
-                statement.close();
-
-                return new Adres(adresId, postcode, huisnummer, straat, woonplaats, reisId);
-            }
-        }catch (SQLException ex) {
-            System.out.println("Adres niet gevonden");
-        }
-        return null;
-    }
 
     @Override
     public Adres findByReiziger(Reiziger r) throws SQLException {
         try{
             Statement statement = conn.createStatement();
-            ResultSet res = statement.executeQuery(String.format("select * from adres where reiziger_id=%d", r.getId()));
+            ResultSet res = statement.executeQuery(String.format("select adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id from adres where reiziger_id=%d", r.getId()));
             if(res.next()){
                 int adresId = res.getInt("adres_id");
                 String postcode = res.getString("postcode");
                 String huisnummer = res.getString("huisnummer");
                 String straat = res.getString("straat");
                 String woonplaats = res.getString("woonplaats");
-                int reisId = res.getInt("reiziger_id");
-
+                Adres a = new Adres(adresId, postcode, huisnummer, straat, woonplaats, r);
                 res.close();
                 statement.close();
 
-                return new Adres(adresId, postcode, huisnummer, straat, woonplaats, reisId);
+                return a;
             }
         }catch (SQLException ex) {
             System.out.println("Adres niet gevonden");
@@ -127,11 +104,11 @@ public class AdresDAOsql implements AdresDAO {
     @Override
     public List<Adres> findAll() throws SQLException {
         List<Adres> list = new ArrayList<>();
-
+        this.rdao = new ReizigerDAOsql(conn);
         try{
 
             Statement statement = conn.createStatement();
-            ResultSet res = statement.executeQuery("select * from adres");
+            ResultSet res = statement.executeQuery("select adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id from adres");
 
             while(res.next()){
                 int Id = res.getInt("adres_id");
@@ -140,7 +117,8 @@ public class AdresDAOsql implements AdresDAO {
                 String straat = res.getString("straat");
                 String woonplaats = res.getString("woonplaats");
                 int reiz_id = res.getInt("reiziger_id");
-                list.add(new Adres(Id, postcode, huisnr, straat, woonplaats, reiz_id));
+                Adres a = new Adres(Id, postcode, huisnr, straat, woonplaats, rdao.findById(reiz_id));
+                list.add(a);
             }
 
             res.close();

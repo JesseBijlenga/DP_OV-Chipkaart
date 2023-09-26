@@ -1,5 +1,6 @@
 package application;
 
+import data.AdresDAO;
 import data.ReizigerDAO;
 import domain.Reiziger;
 
@@ -11,9 +12,11 @@ import java.util.List;
 public class ReizigerDAOsql implements ReizigerDAO {
 
     private final Connection conn;
+    private AdresDAO adao;
 
     public ReizigerDAOsql(Connection conn) {
         this.conn = conn;
+        this.adao = new AdresDAOsql(conn);
     }
 
     @Override
@@ -29,8 +32,10 @@ public class ReizigerDAOsql implements ReizigerDAO {
             ps.setDate(5, Date.valueOf(reiziger.getGbDatum()));
             ps.execute();
             ps.close();
-            if(this.AdresDAO != null) {
-                this.AdresDAO.save(reiziger.getAdres()); //Dit staat in de slides maar lijkt nog iets bij fout te gaan.
+            if(reiziger.getAdres()!=null){
+                if(this.adao != null){
+                    this.adao.save(reiziger.getAdres());
+                }
             }
             return true;
         }catch (SQLException ex){
@@ -53,6 +58,11 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
             ps.execute();
             ps.close();
+            if(reiziger.getAdres()!=null){
+                if(this.adao != null){
+                    this.adao.update(reiziger.getAdres());
+                }
+            }
             return true;
         }catch (SQLException ex){
             System.out.println(ex.getMessage());
@@ -71,6 +81,11 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
             ps.execute();
             ps.close();
+            if(reiziger.getAdres()!=null){
+                if(this.adao != null){
+                    this.adao.delete(reiziger.getAdres());
+                }
+            }
             return true;
         }catch(SQLException ex){
             System.out.println(ex.getMessage());
@@ -82,9 +97,8 @@ public class ReizigerDAOsql implements ReizigerDAO {
     public Reiziger findById(int id) throws SQLException {
         try{
             Statement statement = conn.createStatement();
-            ResultSet res = statement.executeQuery(String.format("select * from reiziger where reiziger_id=%d", id));
+            ResultSet res = statement.executeQuery(String.format("SELECT voorletters, tussenvoegsel, achternaam, geboortedatum FROM reiziger WHERE reiziger_id = %d", id));
             if(res.next()){
-                int Id = res.getInt("reiziger_id");
                 String fL = res.getString("voorletters");
                 String mN = res.getString("tussenvoegsel");
                 String lN = res.getString("achternaam");
@@ -92,8 +106,9 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
                 res.close();
                 statement.close();
-
-                return new Reiziger(Id, fL, mN, lN, bD);
+                Reiziger r = new Reiziger(id, fL, mN, lN, bD);
+                r.setAdres(adao.findByReiziger(r));
+                return r;
             }
         }catch (SQLException ex) {
             System.out.println("Reiziger niet gevonden");
@@ -115,8 +130,9 @@ public class ReizigerDAOsql implements ReizigerDAO {
                 String mN = res.getString("tussenvoegsel");
                 String lN = res.getString("achternaam");
                 LocalDate bD = res.getDate("geboortedatum").toLocalDate();
-                reizigers.add(new Reiziger(Id, fL, mN, lN, bD));
-
+                Reiziger r = new Reiziger(Id, fL, mN, lN, bD);
+                r.setAdres(adao.findByReiziger(r));
+                reizigers.add(r);
             }
 
             res.close();
@@ -135,7 +151,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
         try{
 
             Statement statement = conn.createStatement();
-            ResultSet res = statement.executeQuery("select * from reiziger");
+            ResultSet res = statement.executeQuery("select reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum from reiziger");
 
             while(res.next()){
                 int Id = res.getInt("reiziger_id");
@@ -143,7 +159,9 @@ public class ReizigerDAOsql implements ReizigerDAO {
                 String mN = res.getString("tussenvoegsel");
                 String lN = res.getString("achternaam");
                 LocalDate bD = res.getDate("geboortedatum").toLocalDate();
-                list.add(new Reiziger(Id, fL, mN, lN, bD));
+                Reiziger r = new Reiziger(Id, fL, mN, lN, bD);
+                r.setAdres(adao.findByReiziger(r));
+                list.add(r);
             }
 
             res.close();

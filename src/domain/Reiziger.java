@@ -67,7 +67,7 @@ public class Reiziger {
         this.gbDatum = gbDatum;
     }
     public String toString(){
-        return String.format("#%d: %s. %s %s (%s)", this.id, this.voorletter, this.tussenvoegsel != null ? this.tussenvoegsel : "\b", this.achternaam, this.gbDatum);
+        return String.format("#%d: %s. %s %s (%s), %s", this.id, this.voorletter, this.tussenvoegsel != null ? this.tussenvoegsel : "\b", this.achternaam, this.gbDatum, this.adres != null ? this.adres.toString() : "geen adres");
     }
 
 }
