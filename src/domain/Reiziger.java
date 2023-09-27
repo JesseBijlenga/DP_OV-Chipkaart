@@ -1,6 +1,7 @@
 package domain;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class Reiziger {
     private int id;
@@ -11,7 +12,7 @@ public class Reiziger {
 
     private Adres adres;
 
-
+    private List<OVChipkaart> ovChipkaarten;
 
     public Reiziger(int id, String voorletter, String tussenvoegsel, String achternaam, LocalDate gbDatum) {
         this.id = id;
@@ -20,6 +21,15 @@ public class Reiziger {
         this.achternaam = achternaam;
         this.gbDatum = gbDatum;
     }
+
+    public List<OVChipkaart> getOvChipkaarten() {
+        return ovChipkaarten;
+    }
+
+    public void setOvChipkaarten(List<OVChipkaart> ovChipkaarten) {
+        this.ovChipkaarten = ovChipkaarten;
+    }
+
     public int getId() {
         return id;
     }

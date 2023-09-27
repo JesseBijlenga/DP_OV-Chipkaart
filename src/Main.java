@@ -17,7 +17,7 @@ public class Main {
         Connection conn = DriverManager.getConnection(dbUrl, user, pass);
         ReizigerDAOsql doa = new ReizigerDAOsql(conn);
         AdresDAOsql doa2 = new AdresDAOsql(conn);
-        testAdresDAO(doa2);
+        testAdresDAO(doa2, doa);
         //testReizigerDAO(doa);
 }
     /**
@@ -63,9 +63,13 @@ public class Main {
         Reiziger verwijderdeSietske = rdao.findById(sietske.getId());
         System.out.println("[Test] Verwijderde reiziger (null als verwijderd): " + verwijderdeSietske);
     }
-    private static void testAdresDAO(AdresDAO adao) throws SQLException {
+    private static void testAdresDAO(AdresDAO adao, ReizigerDAO rdao) throws SQLException {
         System.out.println("\n---------- Test AdresDAO -------------");
-
+        Reiziger r = new Reiziger(77, "S", "", "Boers", Date.valueOf("1981-03-14").toLocalDate());
+        rdao.save(r);
+        Adres ad = new Adres(6, "3401 VB", "38", "Wijkstraat", "IJsselstein", r);
+        r.setAdres(ad);
+        adao.save(ad);
         // Haal alle adressen op uit de database
         List<Adres> adressen = adao.findAll();
         System.out.println("[Test] AdresDAO.findAll() geeft de volgende adressen:");

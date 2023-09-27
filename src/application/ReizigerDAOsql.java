@@ -2,6 +2,7 @@ package application;
 
 import data.AdresDAO;
 import data.ReizigerDAO;
+import domain.OVChipkaart;
 import domain.Reiziger;
 
 import java.sql.*;
@@ -13,10 +14,12 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
     private final Connection conn;
     private AdresDAO adao;
+    private OVChipkaartDAOsql odao;
 
     public ReizigerDAOsql(Connection conn) {
         this.conn = conn;
         this.adao = new AdresDAOsql(conn);
+        this.odao = new OVChipkaartDAOsql(conn);
     }
 
     @Override
@@ -35,6 +38,12 @@ public class ReizigerDAOsql implements ReizigerDAO {
             if(reiziger.getAdres()!=null){
                 if(this.adao != null){
                     this.adao.save(reiziger.getAdres());
+                }
+            }
+            if (reiziger.getOvChipkaarten() != null && !reiziger.getOvChipkaarten().isEmpty()) {
+                for (OVChipkaart ovChipkaart : reiziger.getOvChipkaarten()) {
+                    ovChipkaart.setReiziger(reiziger);
+                    this.odao.save(ovChipkaart);
                 }
             }
             return true;
@@ -63,6 +72,12 @@ public class ReizigerDAOsql implements ReizigerDAO {
                     this.adao.update(reiziger.getAdres());
                 }
             }
+            if (reiziger.getOvChipkaarten() != null && !reiziger.getOvChipkaarten().isEmpty()) {
+                for (OVChipkaart ovChipkaart : reiziger.getOvChipkaarten()) {
+                    ovChipkaart.setReiziger(reiziger);
+                    this.odao.update(ovChipkaart);
+                }
+            }
             return true;
         }catch (SQLException ex){
             System.out.println(ex.getMessage());
@@ -84,6 +99,12 @@ public class ReizigerDAOsql implements ReizigerDAO {
             if(reiziger.getAdres()!=null){
                 if(this.adao != null){
                     this.adao.delete(reiziger.getAdres());
+                }
+            }
+            if (reiziger.getOvChipkaarten() != null && !reiziger.getOvChipkaarten().isEmpty()) {
+                for (OVChipkaart ovChipkaart : reiziger.getOvChipkaarten()) {
+                    ovChipkaart.setReiziger(reiziger);
+                    this.odao.delete(ovChipkaart);
                 }
             }
             return true;
