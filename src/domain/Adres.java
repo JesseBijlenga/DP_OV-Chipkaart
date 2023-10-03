@@ -67,7 +67,13 @@ public class Adres {
     }
 
     public String toString(){
-        return String.format("Adres {#%d %s-%s} Reiziger ID: %d", this.adres_id, this.postcode, this.huisnummer, this.reiziger.getId());
+        return String.format("Adres {#%d postcode = %s huisnummer = %s straat = %s woonplaats = %s reiziger_id = %d}",
+                this.adres_id,
+                this.postcode,
+                this.huisnummer,
+                this.straat,
+                this.woonplaats,
+                this.reiziger.getId());
     }
 
 }

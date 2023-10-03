@@ -18,8 +18,8 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
     public ReizigerDAOsql(Connection conn) {
         this.conn = conn;
-        this.adao = new AdresDAOsql(conn);
-        this.odao = new OVChipkaartDAOsql(conn);
+        this.adao = new AdresDAOsql(conn, this);
+        this.odao = new OVChipkaartDAOsql(conn, this);
     }
 
     @Override
@@ -88,14 +88,6 @@ public class ReizigerDAOsql implements ReizigerDAO {
     @Override
     public boolean delete(Reiziger reiziger) {
         try{
-            String sql = "delete from reiziger where reiziger_id = ?";
-
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setInt(1, reiziger.getId());
-
-            ps.execute();
-            ps.close();
             if(reiziger.getAdres()!=null){
                 if(this.adao != null){
                     this.adao.delete(reiziger.getAdres());
@@ -107,6 +99,15 @@ public class ReizigerDAOsql implements ReizigerDAO {
                     this.odao.delete(ovChipkaart);
                 }
             }
+            String sql = "delete from reiziger where reiziger_id = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, reiziger.getId());
+
+            ps.execute();
+            ps.close();
+
             return true;
         }catch(SQLException ex){
             System.out.println(ex.getMessage());
@@ -129,6 +130,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
                 statement.close();
                 Reiziger r = new Reiziger(id, fL, mN, lN, bD);
                 r.setAdres(adao.findByReiziger(r));
+                r.setOvChipkaarten(odao.findByReiziger(r));
                 return r;
             }
         }catch (SQLException ex) {
@@ -153,6 +155,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
                 LocalDate bD = res.getDate("geboortedatum").toLocalDate();
                 Reiziger r = new Reiziger(Id, fL, mN, lN, bD);
                 r.setAdres(adao.findByReiziger(r));
+                r.setOvChipkaarten(odao.findByReiziger(r));
                 reizigers.add(r);
             }
 
@@ -182,6 +185,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
                 LocalDate bD = res.getDate("geboortedatum").toLocalDate();
                 Reiziger r = new Reiziger(Id, fL, mN, lN, bD);
                 r.setAdres(adao.findByReiziger(r));
+                r.setOvChipkaarten(odao.findByReiziger(r));
                 list.add(r);
             }
 

@@ -13,8 +13,9 @@ import java.util.List;
 public class AdresDAOsql implements AdresDAO {
     private final Connection conn;
     private ReizigerDAO rdao;
-    public AdresDAOsql(Connection conn) {
+    public AdresDAOsql(Connection conn, ReizigerDAO rdao) {
         this.conn = conn;
+        this.rdao = rdao;
     }
     @Override
     public boolean save(Adres adres) {
@@ -104,7 +105,6 @@ public class AdresDAOsql implements AdresDAO {
     @Override
     public List<Adres> findAll() throws SQLException {
         List<Adres> list = new ArrayList<>();
-        this.rdao = new ReizigerDAOsql(conn);
         try{
 
             Statement statement = conn.createStatement();

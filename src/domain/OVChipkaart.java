@@ -57,4 +57,12 @@ public class OVChipkaart {
     public void setReiziger(Reiziger reiziger) {
         this.reiziger = reiziger;
     }
+    public String toString() {
+        return String.format("OV: {nummer = %d, geldig tot = %s, klasse = %d, saldo = %.2f, reiziger_id = %d}",
+                this.kaart_nummer,
+                this.geldig_tot,
+                this.klasse,
+                this.saldo,
+                this.reiziger.getId());
+    }
 }

@@ -16,7 +16,7 @@ public class Main {
 
         Connection conn = DriverManager.getConnection(dbUrl, user, pass);
         ReizigerDAOsql doa = new ReizigerDAOsql(conn);
-        AdresDAOsql doa2 = new AdresDAOsql(conn);
+        AdresDAOsql doa2 = new AdresDAOsql(conn, doa);
         testAdresDAO(doa2, doa);
         //testReizigerDAO(doa);
 }

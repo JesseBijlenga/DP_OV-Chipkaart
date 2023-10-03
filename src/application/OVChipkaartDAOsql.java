@@ -14,8 +14,9 @@ import java.util.List;
 public class OVChipkaartDAOsql implements OVChipkaartDAO {
     private final Connection conn;
     private ReizigerDAO rdao;
-    public OVChipkaartDAOsql(Connection conn) {
+    public OVChipkaartDAOsql(Connection conn, ReizigerDAO rdao) {
         this.conn = conn;
+        this.rdao = rdao;
     }
     @Override
     public boolean save(OVChipkaart ovChipkaart) {
@@ -106,7 +107,6 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
     public List<OVChipkaart> findAll() throws SQLException {
         List<OVChipkaart> ovChipkaartList = new ArrayList<>();
 
-        // Retrieve all OV-chipkaart records from the database
         String selectQuery = "SELECT kaart_nummer, geldig_tot, klasse, saldo, reiziger_id FROM ov-chipkaart";
         Statement statement = conn.createStatement();
         ResultSet resultSet = statement.executeQuery(selectQuery);
@@ -118,8 +118,8 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
             double saldo = resultSet.getDouble("saldo");
             int reizigerId = resultSet.getInt("reiziger_id");
 
-            ReizigerDAOsql reizigerDAO = new ReizigerDAOsql(conn);
-            Reiziger reiziger = reizigerDAO.findById(reizigerId);
+
+            Reiziger reiziger = rdao.findById(reizigerId);
 
             OVChipkaart ovChipkaart = new OVChipkaart(kaartNummer, geldigTot, klasse, saldo, reiziger);
             ovChipkaartList.add(ovChipkaart);

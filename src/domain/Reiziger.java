@@ -76,8 +76,21 @@ public class Reiziger {
     public void setGbDatum(LocalDate gbDatum) {
         this.gbDatum = gbDatum;
     }
-    public String toString(){
-        return String.format("#%d: %s. %s %s (%s), %s", this.id, this.voorletter, this.tussenvoegsel != null ? this.tussenvoegsel : "\b", this.achternaam, this.gbDatum, this.adres != null ? this.adres.toString() : "geen adres");
+    public boolean voegOvchipkaartoe(OVChipkaart ov) {
+        return this.ovChipkaarten.add(ov);
     }
 
+    public boolean verwijderOvchipkaart(OVChipkaart ov) {
+        return this.ovChipkaarten.remove(ov);
+    }
+    public String toString(){
+        return String.format("#%d: %s. %s %s (%s) -- %s -- %s\n",
+                this.id,
+                this.voorletter,
+                this.tussenvoegsel != null ? this.tussenvoegsel : "\b",
+                this.achternaam,
+                this.gbDatum != null ? this.gbDatum : "Geboortedatum niet bekend",
+                this.adres != null ? this.adres : "Adres niet bekend",
+                !this.ovChipkaarten.isEmpty() ? this.ovChipkaarten.toString() : "Reiziger heeft geen ov chipkaarten!");
+    }
 }
