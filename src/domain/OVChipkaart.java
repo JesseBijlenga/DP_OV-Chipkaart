@@ -1,6 +1,8 @@
 package domain;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OVChipkaart {
     private int kaart_nummer;
@@ -8,6 +10,7 @@ public class OVChipkaart {
     private int klasse;
     private double saldo;
     private Reiziger reiziger;
+    private List<Product> producten = new ArrayList<>();
 
     public OVChipkaart(int kaart_nummer, LocalDate geldig_tot, int klasse, double saldo, Reiziger reiziger) {
         this.kaart_nummer = kaart_nummer;
@@ -16,6 +19,14 @@ public class OVChipkaart {
         this.saldo = saldo;
         this.reiziger = reiziger;
 
+    }
+
+    public List<Product> getProducten() {
+        return producten;
+    }
+
+    public void setProducten(List<Product> producten) {
+        this.producten = producten;
     }
 
     public int getKaart_nummer() {

@@ -4,6 +4,7 @@ import data.OVChipkaartDAO;
 import data.ReizigerDAO;
 import domain.Adres;
 import domain.OVChipkaart;
+import domain.Product;
 import domain.Reiziger;
 
 import java.sql.*;
@@ -14,6 +15,12 @@ import java.util.List;
 public class OVChipkaartDAOsql implements OVChipkaartDAO {
     private final Connection conn;
     private ReizigerDAO rdao;
+    private ProductDAOsql productDAOsql;
+
+    public void setProductDAOsql(ProductDAOsql productDAOsql) {
+        this.productDAOsql = productDAOsql;
+    }
+
     public OVChipkaartDAOsql(Connection conn, ReizigerDAO rdao) {
         this.conn = conn;
         this.rdao = rdao;
@@ -31,7 +38,12 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
 
             preparedStatement.executeUpdate();
             preparedStatement.close();
+            if(productDAOsql!= null){
+                for(Product product : ovChipkaart.getProducten()){
+                    productDAOsql.save(product);
+                }
 
+            }
             return true;
         } catch (SQLException ex){
             System.out.println(ex.getMessage());
@@ -52,7 +64,9 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
 
             preparedStatement.executeUpdate();
             preparedStatement.close();
-
+            for(Product product: ovChipkaart.getProducten()){
+                productDAOsql.update(product);
+            }
             return true;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -63,11 +77,14 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
     @Override
     public boolean delete(OVChipkaart ovChipkaart) {
         try {
+            for(Product product:ovChipkaart.getProducten()){
+                productDAOsql.unlinkProductOV(ovChipkaart.getKaart_nummer(), product);
+            }
             String deleteQuery = "DELETE FROM ov-chipkaart WHERE kaart_nummer = ?";
             PreparedStatement preparedStatement = conn.prepareStatement(deleteQuery);
             preparedStatement.setInt(1, ovChipkaart.getKaart_nummer());
 
-            preparedStatement.executeUpdate();
+            preparedStatement.execute();
             preparedStatement.close();
 
             return true;
