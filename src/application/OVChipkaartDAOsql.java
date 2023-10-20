@@ -95,56 +95,73 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
     }
 
     @Override
-    public List<OVChipkaart> findByReiziger(Reiziger r) throws SQLException {
-        List<OVChipkaart> ovChipkaartList = new ArrayList<>();
-
-        String selectQuery = "SELECT kaart_nummer, geldig_tot, klasse, saldo FROM ov-chipkaart WHERE reiziger_id = ?";
-        PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
-        preparedStatement.setInt(1, r.getId());
-
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        while (resultSet.next()) {
-            int kaartNummer = resultSet.getInt("kaart_nummer");
-            LocalDate geldigTot = resultSet.getDate("geldig_tot").toLocalDate();
-            int klasse = resultSet.getInt("klasse");
-            double saldo = resultSet.getDouble("saldo");
-
-            OVChipkaart ovChipkaart = new OVChipkaart(kaartNummer, geldigTot, klasse, saldo, r);
-            ovChipkaartList.add(ovChipkaart);
+    public List<OVChipkaart> findByReiziger(Reiziger reiziger) {
+        List<OVChipkaart> ovChipkaarten = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement("""
+                    SELECT 
+                        kaart_nummer, 
+                        geldig_tot, 
+                        klasse, 
+                        saldo
+                    FROM 
+                        ov_chipkaart 
+                    WHERE 
+                        reiziger_id = ?
+                    """);
+            ps.setInt(1, reiziger.getId());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()){
+                OVChipkaart ovChipkaart = new OVChipkaart(rs.getInt("kaart_nummer"), rs.getDate("geldig_tot").toLocalDate(), rs.getInt("klasse"), rs.getDouble("saldo"), reiziger);
+                ovChipkaarten.add(ovChipkaart);
+                List<Product> producten = productDAOsql.findByOVChipkaart(ovChipkaart);
+                if(producten != null){
+                    ovChipkaart.setProducten(producten);
+                }
+            }
+            rs.close();
+            ps.close();
+        }catch (SQLException e){
+            System.err.println(e.getMessage());
+            ovChipkaarten = null;
         }
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return ovChipkaartList;
+        return ovChipkaarten;
     }
 
     @Override
-    public List<OVChipkaart> findAll() throws SQLException {
-        List<OVChipkaart> ovChipkaartList = new ArrayList<>();
+    public List<OVChipkaart> findAll(){
 
-        String selectQuery = "SELECT kaart_nummer, geldig_tot, klasse, saldo, reiziger_id FROM ov-chipkaart";
-        Statement statement = conn.createStatement();
-        ResultSet resultSet = statement.executeQuery(selectQuery);
+        List<OVChipkaart> ovChipkaarten = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement("""
+                SELECT 
+                    kaart_nummer, 
+                    geldig_tot, 
+                    klasse, 
+                    saldo,
+                    reiziger_id
+                FROM 
+                    ov_chipkaart 
+             
+                """);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()){
+                OVChipkaart ovChipkaart = new OVChipkaart(rs.getInt("kaart_nummer"), rs.getDate("geldig_tot").toLocalDate(), rs.getInt("klasse"), rs.getDouble("saldo"), rdao.findById(rs.getInt("reiziger_id")));
 
-        while (resultSet.next()) {
-            int kaartNummer = resultSet.getInt("kaart_nummer");
-            LocalDate geldigTot = resultSet.getDate("geldig_tot").toLocalDate();
-            int klasse = resultSet.getInt("klasse");
-            double saldo = resultSet.getDouble("saldo");
-            int reizigerId = resultSet.getInt("reiziger_id");
+                List<Product> producten = productDAOsql.findByOVChipkaart(ovChipkaart);
+                if(producten != null){
+                    ovChipkaart.setProducten(producten);
+                }
+                ovChipkaarten.add(ovChipkaart);
 
-
-            Reiziger reiziger = rdao.findById(reizigerId);
-
-            OVChipkaart ovChipkaart = new OVChipkaart(kaartNummer, geldigTot, klasse, saldo, reiziger);
-            ovChipkaartList.add(ovChipkaart);
+            }
+            rs.close();
+            ps.close();
+        }catch (SQLException e){
+            System.err.println(e.getMessage());
+            ovChipkaarten = null;
         }
+        return ovChipkaarten;
 
-        resultSet.close();
-        statement.close();
-
-        return ovChipkaartList;
     }
 }

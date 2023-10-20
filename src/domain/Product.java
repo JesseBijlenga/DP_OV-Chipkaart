@@ -59,24 +59,31 @@ public class Product {
         this.prijs = prijs;
     }
 
-    public void addOv(int ovChipkaart){
+    public boolean addOv(int ovChipkaart){
         ovChipkaarten.add(ovChipkaart);
+        return true;
     }
 
-    public void removeOv(OVChipkaart ovChipkaart){
-        ovChipkaarten.remove(ovChipkaart);
+    public boolean removeOv(OVChipkaart ovChipkaart){
+        ovChipkaarten.remove(ovChipkaart.getKaart_nummer());
+        return true;
     }
 
     @Override
     public String toString() {
-        String ovChipkaartenStr = ovChipkaarten.isEmpty() ? "[]" : ovChipkaarten.toString();
 
+
+        StringBuilder ovChipkaartenStr = new StringBuilder();
+        for (Integer ov : ovChipkaarten) {
+            ovChipkaartenStr.append(ov).append(", ");
+        }
+        String ovKaartNummers = ovChipkaartenStr.length() > 0 ? ovChipkaartenStr.substring(0, ovChipkaartenStr.length() - 2) : "Geen ovchipkaarten met dit product";
         return "Product [" +
                 "product_nummer=" + product_nummer +
                 ", naam='" + naam + '\'' +
                 ", beschrijving='" + beschrijving + '\'' +
                 ", prijs=" + prijs +
-                ", ovChipkaarten=" + ovChipkaartenStr +
+                ", ovChipkaarten=" + ovKaartNummers +
                 ']';
     }
 

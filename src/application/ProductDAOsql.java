@@ -20,45 +20,41 @@ public class ProductDAOsql implements ProductDAO {
     }
 
     @Override
-    public List<Product> findAll() {
-        String sql = "SELECT " +
-                "p.product_nummer, " +
-                "p.prijs, " +
-                "p.beschrijving, " +
-                "p.naam " +
-                "FROM product p " +
-                "ORDER BY product_nummer";
-
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    public List<Product> findAll(){
+        try {
+            PreparedStatement ps = conn.prepareStatement("""
+                SELECT
+                p.product_nummer,
+                p.prijs,
+                p.beschrijving,
+                p.naam
+                FROM product p
+                ORDER BY product_nummer;
+                """);
             ResultSet rs = ps.executeQuery();
-            List<Product> producten = new ArrayList<>();
-
-            while (rs.next()) {
+            List<Product> producten = new ArrayList<Product>();
+            while (rs.next()){
                 Product product = new Product(rs.getInt("product_nummer"), rs.getString("naam"), rs.getString("beschrijving"), rs.getDouble("prijs"));
-
-
-                String innerSql = "SELECT ocp.kaart_nummer " +
-                        "FROM ov_chipkaart_product ocp " +
-                        "WHERE product_nummer = ?";
-
-                try (PreparedStatement ps2 = conn.prepareStatement(innerSql)) {
-                    ps2.setInt(1, product.getProduct_nummer());
-                    ResultSet rsp = ps2.executeQuery();
-
-                    while (rsp.next()) {
-                        product.addOv(rsp.getInt("kaart_nummer"));
-                    }
+                PreparedStatement ps2 = conn.prepareStatement("""
+                        SELECT 
+                        ocp.kaart_nummer
+                        FROM 
+                        ov_chipkaart_product ocp
+                        WHERE product_nummer = ?;
+                        """);
+                ps2.setInt(1, product.getProduct_nummer());
+                ResultSet rsp = ps2.executeQuery();
+                while(rsp.next()){
+                    product.addOv(rsp.getInt("kaart_nummer"));
                 }
-
                 producten.add(product);
             }
-
+            ps.close();
             return producten;
-        } catch (SQLException e) {
+        }catch (SQLException e){
             System.err.println(e.getMessage());
             return null;
         }
-
     }
 
     @Override
